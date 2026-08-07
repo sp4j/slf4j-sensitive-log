@@ -20,11 +20,13 @@ public final class SensitiveLogCrypto {
     private static final int PBKDF2_DERIVED_BYTES = 48; // key(32) + iv(16)
     private static final int OPENSSL_SALT_BYTES = 8;
     private static final int CBC_IV_BYTES = 16;
+    private static final String REDACTED_VALUE = "[SENSITIVE:REDACTED]";
 
     private static final Object LOCK = new Object();
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private static volatile String configuredKey;
+    private static volatile String lastInitError;
 
     private SensitiveLogCrypto() {
     }
@@ -54,7 +56,11 @@ public final class SensitiveLogCrypto {
 
         String key = configuredKey;
         if (key == null) {
-            throw new IllegalStateException("SensitiveLogCrypto is not initialized");
+            key = tryInitializeFromConfiguration();
+        }
+
+        if (key == null) {
+            return REDACTED_VALUE;
         }
 
         return encryptInternal(key, String.valueOf(value));
@@ -149,6 +155,20 @@ public final class SensitiveLogCrypto {
         } catch (GeneralSecurityException e) {
             throw new IllegalStateException("Failed to derive key material", e);
         }
+    }
+
+    private static String tryInitializeFromConfiguration() {
+        try {
+            initializeFromConfiguration();
+            return configuredKey;
+        } catch (RuntimeException e) {
+            lastInitError = e.getMessage();
+            return null;
+        }
+    }
+
+    static String getLastInitError() {
+        return lastInitError;
     }
 
     private static final class DerivedMaterial {

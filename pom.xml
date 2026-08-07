@@ -5,7 +5,7 @@
 
     <groupId>io.github.sp4j</groupId>
     <artifactId>spring-boot-slf4j-sensitive-log</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>spring-boot-slf4j-sensitive-log</name>
