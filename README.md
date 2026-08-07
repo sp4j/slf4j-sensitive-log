@@ -80,7 +80,13 @@ Generate a key you can paste into `sensitivelog.aes-key`:
 
 ```bash
 mvn -q -DskipTests package
-java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator
+java -cp target/spring-boot-slf4j-sensitive-log-0.1.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator
+```
+
+Or generate it with pure Bash + OpenSSL:
+
+```bash
+echo "sensitivelog.aes-key=$(openssl rand -base64 32)"
 ```
 
 Example output:
@@ -99,9 +105,9 @@ Parameters:
 Examples:
 
 ```bash
-java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=base64url
-java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=hex --value-only
-java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --property-name=my.custom.key
+java -cp target/spring-boot-slf4j-sensitive-log-0.1.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=base64url
+java -cp target/spring-boot-slf4j-sensitive-log-0.1.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=hex --value-only
+java -cp target/spring-boot-slf4j-sensitive-log-0.1.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --property-name=my.custom.key
 ```
 
 ### Encrypt/decrypt CLI entry points
@@ -111,13 +117,13 @@ Both tools accept exactly 2 parameters: `<aes-key>` and `<string>`.
 Encrypt:
 
 ```bash
-java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogEncrypt "0123456789abcdef0123456789abcdef" "secret"
+java -cp target/spring-boot-slf4j-sensitive-log-0.1.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogEncrypt "0123456789abcdef0123456789abcdef" "secret"
 ```
 
 Decrypt:
 
 ```bash
-java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-value>"
+java -cp target/spring-boot-slf4j-sensitive-log-0.1.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-value>"
 ```
 
 Decrypt in pure Bash without Java (single line, OpenSSL standard, works on Linux and macOS):
