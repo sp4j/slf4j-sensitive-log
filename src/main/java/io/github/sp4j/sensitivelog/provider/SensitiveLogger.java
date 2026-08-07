@@ -32,17 +32,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void trace(String format, Object arg) {
-        delegate.trace(format, arg);
+        delegate.trace(format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void trace(String format, Object arg1, Object arg2) {
-        delegate.trace(format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.trace(format, sanitized[0], sanitized[1]);
     }
 
     @Override
     public void trace(String format, Object... arguments) {
-        delegate.trace(format, arguments);
+        delegate.trace(format, SensitiveArgumentSanitizer.sanitizeVarargs(format, arguments));
     }
 
     @Override
@@ -67,17 +68,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void trace(Marker marker, String format, Object arg) {
-        delegate.trace(marker, format, arg);
+        delegate.trace(marker, format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void trace(Marker marker, String format, Object arg1, Object arg2) {
-        delegate.trace(marker, format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.trace(marker, format, sanitized[0], sanitized[1]);
     }
 
     @Override
     public void trace(Marker marker, String format, Object... argArray) {
-        delegate.trace(marker, format, argArray);
+        delegate.trace(marker, format, SensitiveArgumentSanitizer.sanitizeVarargs(format, argArray));
     }
 
     @Override
@@ -97,17 +99,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void debug(String format, Object arg) {
-        delegate.debug(format, arg);
+        delegate.debug(format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void debug(String format, Object arg1, Object arg2) {
-        delegate.debug(format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.debug(format, sanitized[0], sanitized[1]);
     }
 
     @Override
     public void debug(String format, Object... arguments) {
-        delegate.debug(format, arguments);
+        delegate.debug(format, SensitiveArgumentSanitizer.sanitizeVarargs(format, arguments));
     }
 
     @Override
@@ -132,17 +135,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void debug(Marker marker, String format, Object arg) {
-        delegate.debug(marker, format, arg);
+        delegate.debug(marker, format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void debug(Marker marker, String format, Object arg1, Object arg2) {
-        delegate.debug(marker, format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.debug(marker, format, sanitized[0], sanitized[1]);
     }
 
     @Override
     public void debug(Marker marker, String format, Object... arguments) {
-        delegate.debug(marker, format, arguments);
+        delegate.debug(marker, format, SensitiveArgumentSanitizer.sanitizeVarargs(format, arguments));
     }
 
     @Override
@@ -162,17 +166,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void info(String format, Object arg) {
-        delegate.info(format, arg);
+        delegate.info(format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void info(String format, Object arg1, Object arg2) {
-        delegate.info(format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.info(format, sanitized[0], sanitized[1]);
     }
 
     @Override
     public void info(String format, Object... arguments) {
-        delegate.info(format, arguments);
+        delegate.info(format, SensitiveArgumentSanitizer.sanitizeVarargs(format, arguments));
     }
 
     @Override
@@ -197,17 +202,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void info(Marker marker, String format, Object arg) {
-        delegate.info(marker, format, arg);
+        delegate.info(marker, format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void info(Marker marker, String format, Object arg1, Object arg2) {
-        delegate.info(marker, format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.info(marker, format, sanitized[0], sanitized[1]);
     }
 
     @Override
     public void info(Marker marker, String format, Object... arguments) {
-        delegate.info(marker, format, arguments);
+        delegate.info(marker, format, SensitiveArgumentSanitizer.sanitizeVarargs(format, arguments));
     }
 
     @Override
@@ -227,17 +233,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void warn(String format, Object arg) {
-        delegate.warn(format, arg);
+        delegate.warn(format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void warn(String format, Object... arguments) {
-        delegate.warn(format, arguments);
+        delegate.warn(format, SensitiveArgumentSanitizer.sanitizeVarargs(format, arguments));
     }
 
     @Override
     public void warn(String format, Object arg1, Object arg2) {
-        delegate.warn(format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.warn(format, sanitized[0], sanitized[1]);
     }
 
     @Override
@@ -262,17 +269,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void warn(Marker marker, String format, Object arg) {
-        delegate.warn(marker, format, arg);
+        delegate.warn(marker, format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void warn(Marker marker, String format, Object arg1, Object arg2) {
-        delegate.warn(marker, format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.warn(marker, format, sanitized[0], sanitized[1]);
     }
 
     @Override
     public void warn(Marker marker, String format, Object... arguments) {
-        delegate.warn(marker, format, arguments);
+        delegate.warn(marker, format, SensitiveArgumentSanitizer.sanitizeVarargs(format, arguments));
     }
 
     @Override
@@ -292,17 +300,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void error(String format, Object arg) {
-        delegate.error(format, arg);
+        delegate.error(format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void error(String format, Object arg1, Object arg2) {
-        delegate.error(format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.error(format, sanitized[0], sanitized[1]);
     }
 
     @Override
     public void error(String format, Object... arguments) {
-        delegate.error(format, arguments);
+        delegate.error(format, SensitiveArgumentSanitizer.sanitizeVarargs(format, arguments));
     }
 
     @Override
@@ -327,17 +336,18 @@ public final class SensitiveLogger implements Logger {
 
     @Override
     public void error(Marker marker, String format, Object arg) {
-        delegate.error(marker, format, arg);
+        delegate.error(marker, format, SensitiveArgumentSanitizer.sanitizeSingle(format, arg));
     }
 
     @Override
     public void error(Marker marker, String format, Object arg1, Object arg2) {
-        delegate.error(marker, format, arg1, arg2);
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizePair(format, arg1, arg2);
+        delegate.error(marker, format, sanitized[0], sanitized[1]);
     }
 
     @Override
     public void error(Marker marker, String format, Object... arguments) {
-        delegate.error(marker, format, arguments);
+        delegate.error(marker, format, SensitiveArgumentSanitizer.sanitizeVarargs(format, arguments));
     }
 
     @Override

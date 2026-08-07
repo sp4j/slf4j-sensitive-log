@@ -5,12 +5,32 @@ Phase 1 implementation of a custom SLF4J provider that returns a project-specifi
 - Lombok `@Slf4j`
 - Explicit `LoggerFactory.getLogger(..)` calls
 
+## Sensitive value encryption
+
+If log message contains marker `[SENSITIVE]`, placeholders (`{}`) after that marker are AES-256 encrypted and encoded as URL-safe Base64.
+
+Example:
+
+```java
+log.info("My password is [SENSITIVE] {}", "secret");
+```
+
+Result (example):
+
+```text
+My password is [SENSITIVE] A01B32...
+```
+
 ## How it works
 
 - The provider is registered through Java Service Provider (`META-INF/services/org.slf4j.spi.SLF4JServiceProvider`).
 - `SensitiveLogServiceProvider` discovers the next available SLF4J provider (for example `slf4j-simple` or `logback`).
 - `SensitiveLoggerFactory` wraps the delegate `ILoggerFactory` and returns `SensitiveLogger` instances.
 - `SensitiveLogger` delegates all operations to the original logger, so behavior remains equivalent to a standard logger in phase 1.
+
+## Java version
+
+- The library is compiled for Java 8 (`maven.compiler.release=8`).
 
 ## Project layout
 
@@ -41,10 +61,89 @@ Add dependency:
 </dependency>
 ```
 
-To make provider selection deterministic when multiple SLF4J providers are on classpath (for example with logback), set:
+### Required property
+
+Configure AES key in Spring properties:
+
+```properties
+sensitivelog.aes-key=0123456789abcdef0123456789abcdef
+```
+
+Rules:
+
+- Key is required and validated on provider initialization (fail-fast).
+- Use a strong random value (the key generator below is recommended).
+
+### AES key generator (CLI entry point)
+
+Generate a key you can paste into `sensitivelog.aes-key`:
+
+```bash
+mvn -q -DskipTests package
+java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator
+```
+
+Example output:
+
+```properties
+sensitivelog.aes-key=7W4ZQe5tbM7Nq8N8v8yd1U2Yjz2-l7kb31W5S7JmM3k
+```
+
+Parameters:
+
+- `--format=<base64|base64url|hex>` (default: `base64`)
+- `--property-name=<name>` (default: `sensitivelog.aes-key`)
+- `--value-only` (print only value)
+- `--help`
+
+Examples:
+
+```bash
+java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=base64url
+java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=hex --value-only
+java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --property-name=my.custom.key
+```
+
+### Encrypt/decrypt CLI entry points
+
+Both tools accept exactly 2 parameters: `<aes-key>` and `<string>`.
+
+Encrypt:
+
+```bash
+java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogEncrypt "0123456789abcdef0123456789abcdef" "secret"
+```
+
+Decrypt:
+
+```bash
+java -cp target/classes io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-value>"
+```
+
+Decrypt in pure Bash without Java (single line, OpenSSL standard, works on Linux and macOS):
+
+```bash
+KEY="0123456789abcdef0123456789abcdef"
+ENC="<encrypted-value-from-log>"
+printf '%s' "$ENC" | openssl enc -d -aes-256-cbc -a -A -pbkdf2 -md sha256 -iter 10000 -pass pass:"$KEY"
+```
+
+### Auto registration
+
+Nothing else is required for basic registration: after adding the dependency, SLF4J discovers the provider automatically via SPI.
+
+### When to set `-Dslf4j.provider`
+
+Set this JVM option only if you want deterministic provider selection when several SLF4J providers are available on classpath:
 
 ```bash
 -Dslf4j.provider=io.github.sp4j.sensitivelog.provider.SensitiveLogServiceProvider
+```
+
+Example for Spring Boot:
+
+```bash
+java -Dslf4j.provider=io.github.sp4j.sensitivelog.provider.SensitiveLogServiceProvider -jar app.jar
 ```
 
 

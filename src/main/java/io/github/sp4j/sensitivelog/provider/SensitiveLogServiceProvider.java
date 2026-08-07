@@ -17,6 +17,7 @@ public final class SensitiveLogServiceProvider implements SLF4JServiceProvider {
 
     @Override
     public void initialize() {
+        SensitiveLogCrypto.initializeFromConfiguration();
         SLF4JServiceProvider delegateProvider = findDelegateProvider();
         delegateProvider.initialize();
         this.loggerFactory = new SensitiveLoggerFactory(delegateProvider.getLoggerFactory());

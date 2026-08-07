@@ -49,6 +49,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <slf4j.provider>io.github.sp4j.sensitivelog.provider.SensitiveLogServiceProvider</slf4j.provider>
+                        <sensitivelog.aes-key>0123456789abcdef0123456789abcdef</sensitivelog.aes-key>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
