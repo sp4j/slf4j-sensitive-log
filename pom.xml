@@ -4,19 +4,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.sp4j</groupId>
-    <artifactId>spring-boot-slf4j-sensitive-log</artifactId>
+    <artifactId>slf4j-sensitive-log</artifactId>
     <version>0.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>spring-boot-slf4j-sensitive-log</name>
-    <description>SLF4J provider that wraps all LoggerFactory and Lombok @Slf4j loggers</description>
+    <name>slf4j-sensitive-log</name>
+    <description>Backend-agnostic SLF4J provider that encrypts [SENSITIVE] arguments</description>
 
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <logback.version>1.5.16</logback.version>
         <slf4j.version>2.0.16</slf4j.version>
-        <spring.boot.version>3.3.2</spring.boot.version>
         <junit.jupiter.version>5.10.3</junit.jupiter.version>
     </properties>
 
@@ -25,13 +24,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-            <version>${spring.boot.version}</version>
             <optional>true</optional>
         </dependency>
 
