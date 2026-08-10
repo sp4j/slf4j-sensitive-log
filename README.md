@@ -53,7 +53,7 @@ Token [MASKED_LAST_6] abc123******
 <dependency>
     <groupId>io.github.sp4j</groupId>
     <artifactId>slf4j-sensitive-log</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
@@ -80,6 +80,33 @@ java -Dsensitivelog.aes-key=0123456789abcdef0123456789abcdef -jar app.jar
 mvn clean test
 ```
 
+## Release to Maven Central
+
+1. Create Sonatype Central credentials (token username/password).
+2. Put them into `~/.m2/settings.xml` under server id `central`:
+
+```xml
+<settings>
+  <servers>
+    <server>
+      <id>central</id>
+      <username>${env.CENTRAL_USERNAME}</username>
+      <password>${env.CENTRAL_PASSWORD}</password>
+    </server>
+  </servers>
+</settings>
+```
+
+3. Ensure your GPG key is available locally for signing (or via gpg-agent).
+4. Switch to a non-SNAPSHOT version in `pom.xml` for release.
+5. Run publish command:
+
+```bash
+mvn -Prelease clean deploy
+```
+
+6. Bump to next `-SNAPSHOT` version after release.
+
 ## CLI tools
 
 Build jar:
@@ -91,19 +118,19 @@ mvn -q -DskipTests package
 ### Generate key
 
 ```bash
-java -cp target/slf4j-sensitive-log-0.4.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator
+java -cp target/slf4j-sensitive-log-0.4.0.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator
 ```
 
 ### Encrypt
 
 ```bash
-java -cp target/slf4j-sensitive-log-0.4.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogEncrypt "0123456789abcdef0123456789abcdef" "secret"
+java -cp target/slf4j-sensitive-log-0.4.0.jar io.github.sp4j.sensitivelog.tool.SensitiveLogEncrypt "0123456789abcdef0123456789abcdef" "secret"
 ```
 
 ### Decrypt
 
 ```bash
-java -cp target/slf4j-sensitive-log-0.4.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-hex>"
+java -cp target/slf4j-sensitive-log-0.4.0.jar io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-hex>"
 ```
 
 ### Decrypt with OpenSSL (no Java)
