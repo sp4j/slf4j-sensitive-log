@@ -23,7 +23,7 @@ Without protection, a single `log.info("User {} authenticated, token {}", userna
 
 You keep **full observability** (you can still correlate events, debug issues, decrypt when needed) while keeping **logs safe to ship** to any cloud platform and safe to share with third parties.
 
-## What it does
+## Usage
 
 If a log message contains marker `[SENSITIVE]`, matching `{}` arguments are encrypted with AES-256 and written as lowercase hex.
 You can also use masking markers for non-cryptographic obfuscation:
@@ -56,6 +56,32 @@ Token [MASKED_LAST_6] abc123******
 - Works with plain Java and any framework using SLF4J 2.x (Spring, Guice, Micronaut, Quarkus, etc.).
 - Works with different SLF4J backends (for example `slf4j-simple`, Logback).
 - No hard runtime dependency on Logback when another backend is used.
+- Also supports pure Log4j2 projects (without SLF4J) via `SensitiveLog4jRewritePolicy`.
+
+## Pure Log4j2 (without SLF4J)
+
+If your project logs directly with Log4j2 API, configure a rewrite appender and apply `SensitiveLog4jRewritePolicy`.
+
+```xml
+<Configuration status="WARN" packages="io.github.sp4j.sensitivelog.provider">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p %c{1} - %m%n"/>
+    </Console>
+
+    <Rewrite name="SensitiveRewrite">
+      <SensitiveLog4jRewritePolicy/>
+      <AppenderRef ref="Console"/>
+    </Rewrite>
+  </Appenders>
+
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="SensitiveRewrite"/>
+    </Root>
+  </Loggers>
+</Configuration>
+```
 
 ## How it works
 
