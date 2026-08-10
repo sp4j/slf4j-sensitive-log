@@ -26,8 +26,14 @@ My password is [SENSITIVE] 53616c7465645f5fa1b2c3d4e5f6a7b8...
 - The provider is registered through Java Service Provider (`META-INF/services/org.slf4j.spi.SLF4JServiceProvider`).
 - `SensitiveLogServiceProvider` discovers the next available SLF4J provider (for example `slf4j-simple` or `logback`).
 - For non-Logback backends, `SensitiveLoggerFactory` wraps the delegate `ILoggerFactory` and returns `SensitiveLogger` instances.
-- For Spring Boot / Logback, the library installs a Logback turbo filter via Spring Boot auto-configuration, so `log.getClass()` remains Logback's logger class, but sensitive placeholders are still encrypted before formatting.
+- For Logback, the library installs a turbo filter, so `log.getClass()` remains Logback's logger class, but sensitive placeholders are still encrypted before formatting.
 - `SensitiveLogger` delegates all operations to the original logger, so behavior remains equivalent to a standard logger in phase 1.
+
+## Framework compatibility
+
+- Works in plain Java apps and DI frameworks (for example Guice) as long as SLF4J 2.x is used.
+- Spring / Spring Boot are optional and only used for auto-configuration convenience.
+- The provider no longer has a hard runtime requirement on Logback classes when another SLF4J backend is used.
 
 ## Java version
 

@@ -1,7 +1,5 @@
 package io.github.sp4j.sensitivelog.provider;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.turbo.TurboFilter;
 import java.util.ServiceLoader;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.IMarkerFactory;
@@ -24,7 +22,7 @@ public final class SensitiveLogServiceProvider implements SLF4JServiceProvider {
         delegateProvider.initialize();
         ILoggerFactory delegateFactory = delegateProvider.getLoggerFactory();
         if (isLogbackLoggerContext(delegateFactory)) {
-            installLogbackTurboFilter((LoggerContext) delegateFactory);
+            SensitiveLogbackConfigurer.installIfLogbackPresent(delegateFactory);
             this.loggerFactory = delegateFactory;
         } else {
             this.loggerFactory = new SensitiveLoggerFactory(delegateFactory);
@@ -67,17 +65,5 @@ public final class SensitiveLogServiceProvider implements SLF4JServiceProvider {
         return loggerFactory != null && LOGBACK_LOGGER_CONTEXT_CLASS.equals(loggerFactory.getClass().getName());
     }
 
-    private void installLogbackTurboFilter(LoggerContext loggerContext) {
-        for (TurboFilter filter : loggerContext.getTurboFilterList()) {
-            if (filter instanceof SensitiveLogbackTurboFilter) {
-                return;
-            }
-        }
-
-        SensitiveLogbackTurboFilter filter = new SensitiveLogbackTurboFilter();
-        filter.setContext(loggerContext);
-        filter.start();
-        loggerContext.addTurboFilter(filter);
-    }
 }
 
