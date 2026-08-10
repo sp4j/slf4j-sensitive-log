@@ -5,17 +5,29 @@ Backend-agnostic SLF4J 2.x provider that encrypts sensitive arguments in logs.
 ## What it does
 
 If a log message contains marker `[SENSITIVE]`, matching `{}` arguments are encrypted with AES-256 and written as lowercase hex.
+You can also use masking markers for non-cryptographic obfuscation:
+
+- `[MASKED] {}` -> replace the whole value with `*`
+- `[MASKED_N] {}` -> replace first and last `N` chars with `*`
+- `[MASKED_FIRST_N] {}` -> replace first `N` chars with `*`
+- `[MASKED_LAST_N] {}` -> replace last `N` chars with `*`
 
 Example:
 
 ```java
 log.info("My password is [SENSITIVE] {}", "secret");
+log.info("PAN [MASKED_4] {}", "1234567890123456");
+log.info("Login [MASKED_FIRST_3] {}", "john.doe");
+log.info("Token [MASKED_LAST_6] {}", "abc123def456");
 ```
 
 Result (example):
 
 ```text
 My password is [SENSITIVE] 53616c7465645f5f7c1e673a368c34436b8fb922dcb999c9e099ed6cc99f4e6b
+PAN [MASKED_4] ****56789012****
+Login [MASKED_FIRST_3] ***n.doe
+Token [MASKED_LAST_6] abc123******
 ```
 
 ## Backend-agnostic behavior
@@ -61,12 +73,6 @@ export SENSITIVELOG_AES_KEY=0123456789abcdef0123456789abcdef
 ```bash
 java -Dsensitivelog.aes-key=0123456789abcdef0123456789abcdef -jar app.jar
 ```
-
-Notes:
-
-- `application.properties` / `application.yaml` are not used.
-- Key is resolved lazily on first `[SENSITIVE]` encryption.
-- If key is missing/invalid, logging continues and value becomes `[SENSITIVE:REDACTED]`.
 
 ## Build and test
 

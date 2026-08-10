@@ -58,6 +58,56 @@ class SensitiveArgumentSanitizerTest {
         assertEquals("name", sanitized[0]);
         assertNotEquals("secret", sanitized[1]);
     }
+
+    @Test
+    void masksFullValueWithMaskedMarker() {
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizeVarargs(
+            "Card [MASKED] {}",
+            new Object[] {"123456"}
+        );
+
+        assertEquals("******", sanitized[0]);
+    }
+
+    @Test
+    void masksBothSidesWithMaskedNMarker() {
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizeVarargs(
+            "Card [MASKED_2] {}",
+            new Object[] {"12345678"}
+        );
+
+        assertEquals("**3456**", sanitized[0]);
+    }
+
+    @Test
+    void masksOnlyFirstCharactersWithMaskedFirstNMarker() {
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizeVarargs(
+            "Card [MASKED_FIRST_3] {}",
+            new Object[] {"12345678"}
+        );
+
+        assertEquals("***45678", sanitized[0]);
+    }
+
+    @Test
+    void masksOnlyLastCharactersWithMaskedLastNMarker() {
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizeVarargs(
+            "Card [MASKED_LAST_3] {}",
+            new Object[] {"12345678"}
+        );
+
+        assertEquals("12345***", sanitized[0]);
+    }
+
+    @Test
+    void masksWholeValueWhenMaskedBothRangeCoversAllCharacters() {
+        Object[] sanitized = SensitiveArgumentSanitizer.sanitizeVarargs(
+            "Card [MASKED_4] {}",
+            new Object[] {"123456"}
+        );
+
+        assertEquals("******", sanitized[0]);
+    }
 }
 
 
