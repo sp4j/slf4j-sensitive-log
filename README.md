@@ -18,7 +18,7 @@ Without protection, a single `log.info("User {} authenticated, token {}", userna
 | Auth token, password | `[SENSITIVE]` | AES-256 encrypted hex — only you can decrypt it |
 | Credit card number (PAN) | `[MASKED_4]` | `****56789012****`                              |
 | Email address | `[MASKED_FIRST_3]` | `***r@example.com`                              |
-| Phone number | `[MASKED_LAST_4]` | `+48 796 ***-**00`                              |
+| Phone number | `[MASKED_LAST_4]` | `+48 79676****`                                 |
 | Any secret value | `[MASKED]` | `**************`                                |
 
 You keep **full observability** (you can still correlate events, debug issues, decrypt when needed) while keeping **logs safe to ship** to any cloud platform and safe to share with third parties.
