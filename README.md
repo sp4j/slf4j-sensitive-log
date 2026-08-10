@@ -2,6 +2,27 @@
 
 Backend-agnostic SLF4J 2.x provider that encrypts sensitive arguments in logs.
 
+## Why you need this
+
+Modern applications ship logs to centralized log platforms — **Elastic/Kibana**, **Grafana Loki**, **Datadog**, **Splunk**, **AWS CloudWatch**, **Google Cloud Logging** and others. These systems are designed for broad access: developers, ops, support teams and sometimes third-party contractors all read the same log streams.
+
+Without protection, a single `log.info("User {} authenticated, token {}", username, token)` line means:
+- JWTs, API keys and session tokens are stored in plain text in your log index forever.
+- Personally identifiable information (PII) — emails, phone numbers, passport numbers, payment card numbers (PAN) — leaks to everyone with log read access.
+- You are in breach of **GDPR**, **PCI DSS**, **HIPAA** and similar regulations that require you to protect personal data at rest and in transit.
+
+`slf4j-sensitive-log` solves this **without changing your logging infrastructure**:
+
+| Scenario | Marker | What you get in the log |
+|---|---|---|
+| Auth token, password | `[SENSITIVE]` | AES-256 encrypted hex — only you can decrypt it |
+| Credit card number (PAN) | `[MASKED_4]` | `****56789012****` |
+| Email address | `[MASKED_FIRST_3]` | `***r@example.com` |
+| Phone number | `[MASKED_LAST_4]` | `+7 916 ***-**00` |
+| Any secret value | `[MASKED]` | `**************` |
+
+You keep **full observability** (you can still correlate events, debug issues, decrypt when needed) while keeping **logs safe to ship** to any cloud platform and safe to share with third parties.
+
 ## What it does
 
 If a log message contains marker `[SENSITIVE]`, matching `{}` arguments are encrypted with AES-256 and written as lowercase hex.
