@@ -53,7 +53,7 @@ Token [MASKED_LAST_6] abc123******
 
 ## Backend-agnostic behavior
 
-- Works with plain Java and any framework using SLF4J 2.x (Guice, Micronaut, Quarkus, etc.).
+- Works with plain Java and any framework using SLF4J 2.x (Spring, Guice, Micronaut, Quarkus, etc.).
 - Works with different SLF4J backends (for example `slf4j-simple`, Logback).
 - No hard runtime dependency on Logback when another backend is used.
 
@@ -100,33 +100,6 @@ java -Dsensitivelog.aes-key=0123456789abcdef0123456789abcdef -jar app.jar
 ```bash
 mvn clean test
 ```
-
-## Release to Maven Central
-
-1. Create Sonatype Central credentials (token username/password).
-2. Put them into `~/.m2/settings.xml` under server id `central`:
-
-```xml
-<settings>
-  <servers>
-    <server>
-      <id>central</id>
-      <username>${env.CENTRAL_USERNAME}</username>
-      <password>${env.CENTRAL_PASSWORD}</password>
-    </server>
-  </servers>
-</settings>
-```
-
-3. Ensure your GPG key is available locally for signing (or via gpg-agent).
-4. Switch to a non-SNAPSHOT version in `pom.xml` for release.
-5. Run publish command:
-
-```bash
-mvn -Prelease clean deploy
-```
-
-6. Bump to next `-SNAPSHOT` version after release.
 
 ## CLI tools
 
