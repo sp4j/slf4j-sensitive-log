@@ -18,14 +18,15 @@ log.info("My password is [SENSITIVE] {}", "secret");
 Result (example):
 
 ```text
-My password is [SENSITIVE] A01B32...
+My password is [SENSITIVE] 53616c7465645f5fa1b2c3d4e5f6a7b8...
 ```
 
 ## How it works
 
 - The provider is registered through Java Service Provider (`META-INF/services/org.slf4j.spi.SLF4JServiceProvider`).
 - `SensitiveLogServiceProvider` discovers the next available SLF4J provider (for example `slf4j-simple` or `logback`).
-- `SensitiveLoggerFactory` wraps the delegate `ILoggerFactory` and returns `SensitiveLogger` instances.
+- For non-Logback backends, `SensitiveLoggerFactory` wraps the delegate `ILoggerFactory` and returns `SensitiveLogger` instances.
+- For Spring Boot / Logback, the library installs a Logback turbo filter via Spring Boot auto-configuration, so `log.getClass()` remains Logback's logger class, but sensitive placeholders are still encrypted before formatting.
 - `SensitiveLogger` delegates all operations to the original logger, so behavior remains equivalent to a standard logger in phase 1.
 
 ## Java version
@@ -57,20 +58,28 @@ Add dependency:
 <dependency>
 	<groupId>io.github.sp4j</groupId>
 	<artifactId>spring-boot-slf4j-sensitive-log</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.3.0-SNAPSHOT</version>
 </dependency>
 ```
 
 ### Required property
 
-Configure AES key in Spring properties:
+Configure AES key via **environment variable** or **JVM property**:
 
-```properties
-sensitivelog.aes-key=0123456789abcdef0123456789abcdef
+**Option 1: Environment variable**
+```bash
+export SENSITIVELOG_AES_KEY=0123456789abcdef0123456789abcdef
+```
+
+**Option 2: JVM property**
+```bash
+java -Dsensitivelog.aes-key=0123456789abcdef0123456789abcdef -jar app.jar
 ```
 
 Rules:
 
+- Key must be provided as an environment variable (`SENSITIVELOG_AES_KEY`) or JVM property (`sensitivelog.aes-key`).
+- Configuration via `application.properties` is **not supported**.
 - Key is resolved lazily on first `[SENSITIVE]` encryption.
 - If key is missing/invalid, application startup is not interrupted and sensitive values are logged as `[SENSITIVE:REDACTED]`.
 - Use a strong random value (the key generator below is recommended).
@@ -81,13 +90,13 @@ Generate a key you can paste into `sensitivelog.aes-key`:
 
 ```bash
 mvn -q -DskipTests package
-java -cp target/spring-boot-slf4j-sensitive-log-0.2.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator
+java -cp target/spring-boot-slf4j-sensitive-log-0.3.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator
 ```
 
 Or generate it with pure Bash + OpenSSL:
 
 ```bash
-l
+echo "sensitivelog.aes-key=$(openssl rand -base64 32)"
 ```
 
 Example output:
@@ -106,9 +115,9 @@ Parameters:
 Examples:
 
 ```bash
-java -cp target/spring-boot-slf4j-sensitive-log-0.2.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=base64url
-java -cp target/spring-boot-slf4j-sensitive-log-0.2.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=hex --value-only
-java -cp target/spring-boot-slf4j-sensitive-log-0.2.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --property-name=my.custom.key
+java -cp target/spring-boot-slf4j-sensitive-log-0.3.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=base64url
+java -cp target/spring-boot-slf4j-sensitive-log-0.3.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --format=hex --value-only
+java -cp target/spring-boot-slf4j-sensitive-log-0.3.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator --property-name=my.custom.key
 ```
 
 ### Encrypt/decrypt CLI entry points
@@ -118,22 +127,24 @@ Both tools accept exactly 2 parameters: `<aes-key>` and `<string>`.
 Encrypt:
 
 ```bash
-java -cp target/spring-boot-slf4j-sensitive-log-0.2.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogEncrypt "0123456789abcdef0123456789abcdef" "secret"
+java -cp target/spring-boot-slf4j-sensitive-log-0.3.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogEncrypt "0123456789abcdef0123456789abcdef" "secret"
 ```
 
 Decrypt:
 
 ```bash
-java -cp target/spring-boot-slf4j-sensitive-log-0.2.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-value>"
+java -cp target/spring-boot-slf4j-sensitive-log-0.3.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-hex>"
 ```
 
-Decrypt in pure Bash without Java (single line, OpenSSL standard, works on Linux and macOS):
+Decrypt in pure Bash without Java (OpenSSL standard, works on Linux and macOS):
 
 ```bash
 KEY="0123456789abcdef0123456789abcdef"
-ENC="<encrypted-value-from-log>"
-printf '%s' "$ENC" | openssl enc -d -aes-256-cbc -a -A -pbkdf2 -md sha256 -iter 10000 -pass pass:"$KEY"
+ENC="<encrypted-hex-from-log>"
+printf '%s' "$ENC" | xxd -r -p | openssl enc -d -aes-256-cbc -pbkdf2 -md sha256 -iter 10000 -pass pass:"$KEY"
 ```
+
+> `xxd -r -p` converts the hex string back to raw bytes; OpenSSL then decrypts the binary OpenSSL-salted payload.
 
 ### Auto registration
 

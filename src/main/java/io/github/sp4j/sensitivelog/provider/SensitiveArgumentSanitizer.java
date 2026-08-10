@@ -46,10 +46,36 @@ final class SensitiveArgumentSanitizer {
         }
 
         Object[] sanitized = arguments.clone();
-        for (int i = firstSensitiveArg; i < upperBound; i++) {
-            sanitized[i] = SensitiveLogCrypto.encrypt(sanitized[i]);
-        }
+        sanitizeRangeInPlace(sanitized, firstSensitiveArg, upperBound);
         return sanitized;
+    }
+
+    static void sanitizeVarargsInPlace(String format, Object[] arguments) {
+        if (arguments == null || arguments.length == 0) {
+            return;
+        }
+
+        int firstSensitiveArg = firstSensitivePlaceholderIndex(format);
+        if (firstSensitiveArg < 0) {
+            return;
+        }
+
+        int placeholderCount = countPlaceholders(format);
+        if (placeholderCount == 0) {
+            return;
+        }
+
+        int argsLimit = arguments.length;
+        if (isTrailingThrowable(arguments, placeholderCount)) {
+            argsLimit = arguments.length - 1;
+        }
+
+        int upperBound = Math.min(placeholderCount, argsLimit);
+        if (firstSensitiveArg >= upperBound) {
+            return;
+        }
+
+        sanitizeRangeInPlace(arguments, firstSensitiveArg, upperBound);
     }
 
     private static int firstSensitivePlaceholderIndex(String format) {
@@ -97,6 +123,12 @@ final class SensitiveArgumentSanitizer {
         return arguments.length > 0
             && arguments[arguments.length - 1] instanceof Throwable
             && placeholderCount < arguments.length;
+    }
+
+    private static void sanitizeRangeInPlace(Object[] arguments, int startInclusive, int endExclusive) {
+        for (int i = startInclusive; i < endExclusive; i++) {
+            arguments[i] = SensitiveLogCrypto.encrypt(arguments[i]);
+        }
     }
 }
 

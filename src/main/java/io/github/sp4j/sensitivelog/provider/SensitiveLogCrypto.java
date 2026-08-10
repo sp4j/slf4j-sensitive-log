@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -96,15 +95,15 @@ public final class SensitiveLogCrypto {
         System.arraycopy(OPENSSL_SALTED_MAGIC, 0, payload, 0, OPENSSL_SALTED_MAGIC.length);
         System.arraycopy(derived.salt, 0, payload, OPENSSL_SALTED_MAGIC.length, derived.salt.length);
         System.arraycopy(encrypted, 0, payload, OPENSSL_SALTED_MAGIC.length + derived.salt.length, encrypted.length);
-        return Base64.getEncoder().encodeToString(payload);
+        return toHex(payload);
     }
 
     private static String decryptInternal(String rawKey, String value) {
         byte[] payload;
         try {
-            payload = Base64.getDecoder().decode(value);
+            payload = fromHex(value);
         } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("Encrypted value is not valid Base64", e);
+            throw new IllegalStateException("Encrypted value is not valid hex", e);
         }
 
         if (payload.length <= OPENSSL_SALTED_MAGIC.length + OPENSSL_SALT_BYTES) {
@@ -169,6 +168,30 @@ public final class SensitiveLogCrypto {
 
     static String getLastInitError() {
         return lastInitError;
+    }
+
+    private static String toHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
+    private static byte[] fromHex(String hex) {
+        if (hex == null || hex.length() % 2 != 0) {
+            throw new IllegalArgumentException("Invalid hex string");
+        }
+        byte[] result = new byte[hex.length() / 2];
+        for (int i = 0; i < hex.length(); i += 2) {
+            int hi = Character.digit(hex.charAt(i), 16);
+            int lo = Character.digit(hex.charAt(i + 1), 16);
+            if (hi < 0 || lo < 0) {
+                throw new IllegalArgumentException("Invalid hex character at index " + i);
+            }
+            result[i / 2] = (byte) ((hi << 4) | lo);
+        }
+        return result;
     }
 
     private static final class DerivedMaterial {

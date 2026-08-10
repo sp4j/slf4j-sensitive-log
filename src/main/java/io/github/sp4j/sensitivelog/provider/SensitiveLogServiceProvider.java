@@ -1,5 +1,7 @@
 package io.github.sp4j.sensitivelog.provider;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.turbo.TurboFilter;
 import java.util.ServiceLoader;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.IMarkerFactory;
@@ -10,6 +12,7 @@ import org.slf4j.spi.SLF4JServiceProvider;
 public final class SensitiveLogServiceProvider implements SLF4JServiceProvider {
 
     private static final String REQUESTED_API_VERSION = "2.0.99";
+    private static final String LOGBACK_LOGGER_CONTEXT_CLASS = "ch.qos.logback.classic.LoggerContext";
 
     private volatile ILoggerFactory loggerFactory;
     private volatile IMarkerFactory markerFactory;
@@ -19,7 +22,13 @@ public final class SensitiveLogServiceProvider implements SLF4JServiceProvider {
     public void initialize() {
         SLF4JServiceProvider delegateProvider = findDelegateProvider();
         delegateProvider.initialize();
-        this.loggerFactory = new SensitiveLoggerFactory(delegateProvider.getLoggerFactory());
+        ILoggerFactory delegateFactory = delegateProvider.getLoggerFactory();
+        if (isLogbackLoggerContext(delegateFactory)) {
+            installLogbackTurboFilter((LoggerContext) delegateFactory);
+            this.loggerFactory = delegateFactory;
+        } else {
+            this.loggerFactory = new SensitiveLoggerFactory(delegateFactory);
+        }
         this.markerFactory = delegateProvider.getMarkerFactory();
         this.mdcAdapter = delegateProvider.getMDCAdapter();
     }
@@ -52,6 +61,23 @@ public final class SensitiveLogServiceProvider implements SLF4JServiceProvider {
             }
         }
         return new NOP_FallbackServiceProvider();
+    }
+
+    private boolean isLogbackLoggerContext(ILoggerFactory loggerFactory) {
+        return loggerFactory != null && LOGBACK_LOGGER_CONTEXT_CLASS.equals(loggerFactory.getClass().getName());
+    }
+
+    private void installLogbackTurboFilter(LoggerContext loggerContext) {
+        for (TurboFilter filter : loggerContext.getTurboFilterList()) {
+            if (filter instanceof SensitiveLogbackTurboFilter) {
+                return;
+            }
+        }
+
+        SensitiveLogbackTurboFilter filter = new SensitiveLogbackTurboFilter();
+        filter.setContext(loggerContext);
+        filter.start();
+        loggerContext.addTurboFilter(filter);
     }
 }
 

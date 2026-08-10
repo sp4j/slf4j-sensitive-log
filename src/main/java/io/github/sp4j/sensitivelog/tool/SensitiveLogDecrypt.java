@@ -4,7 +4,7 @@ import io.github.sp4j.sensitivelog.provider.SensitiveLogCrypto;
 
 /**
  * CLI entry point for decryption.
- * Args: <aes-key> <encrypted-base64>
+ * Args: <aes-key> <encrypted-hex>
  */
 public final class SensitiveLogDecrypt {
 
@@ -13,7 +13,7 @@ public final class SensitiveLogDecrypt {
 
     public static void main(String[] args) {
         if (args.length != 2) {
-            System.err.println("Usage: java -cp <classpath> io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt <aes-key> <encrypted-base64url>");
+            System.err.println("Usage: java -cp <classpath> io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt <aes-key> <encrypted-hex>");
             System.exit(1);
         }
 
