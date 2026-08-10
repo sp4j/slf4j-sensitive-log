@@ -100,7 +100,7 @@ If your project logs directly with Log4j2 API, configure a rewrite appender and 
 <dependency>
     <groupId>io.github.sp4j</groupId>
     <artifactId>slf4j-sensitive-log</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -138,19 +138,19 @@ mvn -q -DskipTests package
 ### Generate key
 
 ```bash
-java -cp target/slf4j-sensitive-log-0.4.0.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator
+java -cp target/slf4j-sensitive-log-0.5.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogKeyGenerator
 ```
 
 ### Encrypt
 
 ```bash
-java -cp target/slf4j-sensitive-log-0.4.0.jar io.github.sp4j.sensitivelog.tool.SensitiveLogEncrypt "0123456789abcdef0123456789abcdef" "secret"
+java -cp target/slf4j-sensitive-log-0.5.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogEncrypt "0123456789abcdef0123456789abcdef" "secret"
 ```
 
 ### Decrypt
 
 ```bash
-java -cp target/slf4j-sensitive-log-0.4.0.jar io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-hex>"
+java -cp target/slf4j-sensitive-log-0.5.0-SNAPSHOT.jar io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-hex>"
 ```
 
 ### Decrypt with OpenSSL (no Java)
