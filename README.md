@@ -4,14 +4,15 @@ Backend-agnostic SLF4J 2.x provider that encrypts sensitive arguments in logs.
 
 ## Why you need this
 
-Modern applications ship logs to centralized log platforms — **Elastic/Kibana**, **Grafana Loki**, **Datadog**, **Splunk**, **AWS CloudWatch**, **Google Cloud Logging** and others. These systems are designed for broad access: developers, ops, support teams and sometimes third-party contractors all read the same log streams.
+If your logs are shipped to cloud or centralized platforms (**Elastic/Kibana**, **Grafana Loki**, **Datadog**, **Splunk**, **AWS CloudWatch**, **Google Cloud Logging**, etc.), sensitive data can become visible to many people.
 
-Without protection, a single `log.info("User {} authenticated, token {}", username, token)` line means:
-- JWTs, API keys and session tokens are stored in plain text in your log index forever.
-- Personally identifiable information (PII) — emails, phone numbers, passport numbers, payment card numbers (PAN) — leaks to everyone with log read access.
-- You are in breach of **GDPR**, **PCI DSS**, **HIPAA** and similar regulations that require you to protect personal data at rest and in transit.
+Typical examples:
 
-`slf4j-sensitive-log` solves this **without changing your logging infrastructure**:
+- tokens, passwords, API keys
+- personal data (PII)
+- payment data (PAN)
+
+`slf4j-sensitive-log` helps protect these values directly at logging time, without replacing your logging stack.
 
 | Scenario | Marker | What you get in the log                         |
 |---|---|-------------------------------------------------|
@@ -22,6 +23,13 @@ Without protection, a single `log.info("User {} authenticated, token {}", userna
 | Any secret value | `[MASKED]` | `**************`                                |
 
 You keep **full observability** (you can still correlate events, debug issues, decrypt when needed) while keeping **logs safe to ship** to any cloud platform and safe to share with third parties.
+
+## Lightweight and compatible
+
+- Lightweight runtime footprint and simple drop-in dependency.
+- Works with plain Java and major frameworks using SLF4J (Spring, Micronaut, Guice, Quarkus, etc.).
+- Works with common backends (`slf4j-simple`, Logback) and with pure Log4j2 via `SensitiveLog4jRewritePolicy`.
+- Lombok logging patterns (for example `@Slf4j`) are supported naturally because processing happens at SLF4J/Log4j2 logging level.
 
 ## Usage
 
@@ -117,7 +125,6 @@ The demo project includes:
 - Spring Boot + SLF4J (Java 17)
 - Micronaut + SLF4J (Java 25)
 
-It also shows profile-driven activation without `demo.sensitive-log`, and notes framework-specific run nuances (for example, passing JVM args through `spring-boot.run.jvmArguments` for `spring-boot:run`).
 
 ## Required key configuration
 
