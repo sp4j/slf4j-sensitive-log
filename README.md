@@ -104,6 +104,21 @@ If your project logs directly with Log4j2 API, configure a rewrite appender and 
 </dependency>
 ```
 
+## Demo applications
+
+End-to-end runnable demos for different Java versions and stacks are available here:
+
+- `https://github.com/sp4j/slf4j-sensitive-log-example`
+
+The demo project includes:
+
+- Pure Log4j2 (Java 8)
+- Guice + SLF4J (Java 11)
+- Spring Boot + SLF4J (Java 17)
+- Micronaut + SLF4J (Java 25)
+
+It also shows profile-driven activation without `demo.sensitive-log`, and notes framework-specific run nuances (for example, passing JVM args through `spring-boot.run.jvmArguments` for `spring-boot:run`).
+
 ## Required key configuration
 
 Set AES key via one of:
@@ -164,3 +179,6 @@ printf '%s' "$ENC" | xxd -r -p | openssl enc -d -aes-256-cbc -pbkdf2 -md sha256 
 ## Provider selection
 
 Set `-Dslf4j.provider=io.github.sp4j.sensitivelog.provider.SensitiveLogServiceProvider` only when deterministic provider selection is needed and multiple providers exist on classpath.
+
+If your build controls classpath resources per profile, you can also select the provider by adding a profile-specific `META-INF/services/org.slf4j.spi.SLF4JServiceProvider` entry instead of JVM flags.
+
