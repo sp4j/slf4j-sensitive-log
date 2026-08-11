@@ -2,7 +2,7 @@
 
 Backend-agnostic SLF4J 2.x provider that encrypts sensitive arguments in logs.
 
-## Why you need this
+## Why Use This
 
 If your logs are shipped to cloud or centralized platforms (**Elastic/Kibana**, **Grafana Loki**, **Datadog**, **Splunk**, **AWS CloudWatch**, **Google Cloud Logging**, etc.), sensitive data can become visible to many people.
 
@@ -175,7 +175,7 @@ java -cp target/slf4j-sensitive-log-0.5.0.jar io.github.sp4j.sensitivelog.tool.S
 java -cp target/slf4j-sensitive-log-0.5.0.jar io.github.sp4j.sensitivelog.tool.SensitiveLogDecrypt "0123456789abcdef0123456789abcdef" "<encrypted-hex>"
 ```
 
-### Decrypt with OpenSSL (no Java)
+### Decrypt with OpenSSL
 
 ```bash
 KEY="0123456789abcdef0123456789abcdef"
